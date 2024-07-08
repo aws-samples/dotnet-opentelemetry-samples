@@ -11,13 +11,13 @@ SampleApi demonstrates the usage of OpenTelemetry for logging in an ASP.NET Core
 1. Clone the repository:
 
 ```
-git clone https://github.com/aws-samples/dotnet-opentelemetry-samples/
+git clone https://github.com/aws-samples/dotnet-opentelemetry-samples.git
 ```
 
 2. Navigate to the project directory:
 
 ```
-cd SampleApi
+cd dotnet-opentelemetry-samples/SampleApi
 ```
 
 3. Build the project:
@@ -95,11 +95,11 @@ With the `AddConsoleExporter()` enabled, the logs will be printed to the console
 
 ## Contributions
 
-See [CONTRIBUTING]() for more information.
+See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## License
 
-This project is licensed under the [MIT License]().
+This project is licensed under the [MIT License](LICENSE).
 
 ## Disclaimer
 

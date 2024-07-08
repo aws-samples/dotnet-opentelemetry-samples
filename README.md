@@ -1,12 +1,14 @@
-# SampleApi
+# Developing Custom Processors using OpenTelemetry in .NET 8
 
-SampleApi demonstrates the usage of OpenTelemetry for logging in an ASP.NET Core application. It includes a `WeatherForecastController` that serves as an example API endpoint.
+## SampleApi
 
-## Prerequisites
+SampleApi demonstrates the usage of OpenTelemetry for adding custom processors to enrich the logging in an ASP.NET Core application. It includes a `WeatherForecastController` that serves as an example API endpoint.
+
+### Prerequisites
 
 - .NET Core SDK (version 8.0 or later)
 
-## Getting Started
+### Getting Started
 
 1. Clone the repository:
 
@@ -32,45 +34,64 @@ dotnet build
 dotnet run
 ```
 
-The application should now be running at `https://localhost:7143` (or any other port specified in `launchSettings.json`).
+The application should now be running at `https://localhost:7143` or `http://localhost:5192` (or any other port specified in `launchSettings.json`).
 
-## API Endpoints
+### API Endpoints
 
-### Weather Forecast
+#### Weather Forecast
 
-- **URL**: `/WeatherForecast`
-- **Method**: GET
-- **Description**: Returns a list of weather forecasts for the next five days.
+- *URL: `/WeatherForecast`*
+- *Method: GET*
+- *Description: Returns a list of weather forecasts for the next five days.*
 
-## OpenTelemetry Integration
+### OpenTelemetry Integration
 
 This project uses OpenTelemetry for logging purposes. The following OpenTelemetry components are configured:
 
 1. **Resource Builder**: A default resource builder is used, and a service name "SampleApiService" is added.
 2. **Log Processors**:
    - `LogEnrichProcessor`: This processor enriches log events with additional information, such as the HTTP context and the current user's username.
-   - `LogStackTraceExceptionProcessor`: This processor adds stack trace information and inner exception details to log events that contain exceptions.
+   - `LogExceptionStackTraceProcessor`: This processor adds stack trace information and inner exception details to log events that contain exceptions.
 3. **Exporters**:
-   - `OtlpExporter`: This exporter sends logs to an OpenTelemetry Collector using the OTLP protocol. You can comment out this line and use `AddConsoleExporter()` instead to view logs in the console during local development.
+   - Otlp Exporter: This exporter sends logs to an OpenTelemetry Collector using the OTLP protocol. You can comment out this line and use `AddConsoleExporter()` instead to view logs in the console during local development.
 
-## Logging
+### Logging
 
 This application uses OpenTelemetry for logging, and the logs are enriched with additional information using custom processors. When you run the application and make requests to the `/WeatherForecast` endpoint, you'll see log entries similar to the following:
 
-```
-<<TODO: log snippet and modify the below log entries>
+```json
+{
+    "body": "Weather Forecast Get API call",
+    "severity_number": 9,
+    "severity_text": "Information",
+    "trace_id": "f18110933d85d8d6ea326ad2b16bee73",
+    "span_id": "e3b551998393564b",
+    "attributes": {
+        "ProcessorName": "LogEnrichProcessor",
+        "Username": "Anonymous"
+    },
+    "scope": {
+        "name": "SampleApi.Controllers.WeatherForecastController"
+    },
+    "resource": {
+        "service.instance.id": "f27d1248-8cb1-4aeb-ada2-3eaa0dc08122",
+        "service.name": "SampleApiService",
+        "telemetry.sdk.language": "dotnet",
+        "telemetry.sdk.name": "opentelemetry",
+        "telemetry.sdk.version": "1.8.0"
+    }
+} 
 ```
 
-The log entries will include the following additional information:
-
-- **ProcessorName**: The name of the log processor that enriched the log entry. In this case, it's the `LogEnrichProcessor`.
+The log entries includes the following additional information:
+- **ProcessorName**: The name of the log processor that enriched the log entry. In this case, it's the `LogEnrichProcessor`. 
 - **Username**: The username of the current user making the request. If the user is not authenticated, it will show as "Anonymous".
 - **exception.stacktrace**: If an exception occurred during the request, this field will contain the stack trace of the exception.
 - **exception.innerexception**: If an exception occurred during the request and it has an inner exception, this field will contain the inner exception details.
 
 If you want to test the exception logging, you can intentionally throw an exception in the `WeatherForecastController` or any other part of the application. The log entry for the exception will include the stack trace and inner exception details, if applicable.
 
-By default, the logs are sent to an OpenTelemetry Collector using the `OtlpExporter`. If you want to view the logs in the console during local development, you can comment out the `AddOtlpExporter()` line and uncomment the `AddConsoleExporter()` line in the `Logging` configuration.
+By default, the logs are sent to an OpenTelemetry Collector using the Otlp exporter. If you want to view the logs in the console during local development, you can comment out the `AddOtlpExporter()` line and uncomment the `AddConsoleExporter()` line in the `Logging` configuration.
 
 ```csharp
 builder.Logging.AddOpenTelemetry(options =>
@@ -80,7 +101,7 @@ builder.Logging.AddOpenTelemetry(options =>
             ResourceBuilder.CreateDefault()
                 .AddService("SampleApiService"))
         .AddProcessor(new LogEnrichProcessor(new HttpContextAccessor()))
-        .AddProcessor(new LogStackTraceExceptionProcessor())
+        .AddProcessor(new LogExceptionStackTraceProcessor())
         .AddOtlpExporter();
         //.AddConsoleExporter(); // Uncomment this line for console logging
 });
@@ -88,20 +109,20 @@ builder.Logging.AddOpenTelemetry(options =>
 
 With the `AddConsoleExporter()` enabled, the logs will be printed to the console, making it easier to inspect them during development and testing.
 
-## Dependencies
+### Dependencies
 
-- [OpenTelemetry.Extensions.Logging](https://www.nuget.org/packages/OpenTelemetry.Extensions.Logging/): OpenTelemetry logging integration for .NET applications.
-- [Microsoft.AspNetCore.HttpLogging](https://www.nuget.org/packages/Microsoft.AspNetCore.HttpLogging/): ASP.NET Core middleware for logging HTTP requests and responses.
+- [OpenTelemetry.Exporter.Console](https://www.nuget.org/packages/OpenTelemetry.Exporter.Console): The console exporter prints data to the Console window. ConsoleExporter supports exporting logs, metrics and traces.
+- [OpenTelemetry.Exporter.OpenTelemetryProtocol](https://www.nuget.org/packages/OpenTelemetry.Exporter.OpenTelemetryProtocol): The OTLP (OpenTelemetry Protocol) exporter implementation.
 
-## Contributions
+### Contributions
 
 See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
-## License
+### License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## Disclaimer
+### Disclaimer
 
 This project is a sample Weather Forecasting Web API used to demonstrate OpenTelemetry integration and does not incorporate any form of authentication/authorization and is not intended to be used as-is in a Production environment.
 

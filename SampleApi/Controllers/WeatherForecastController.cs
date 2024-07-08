@@ -23,8 +23,8 @@ namespace SampleApi.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            _logger.LogInformation("Weather Forecast API call");
-            
+            _logger.LogInformation("Weather Forecast Get API call");
+
             var forecast =  Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast
                 (

@@ -1,5 +1,6 @@
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using SampleApi.Processors;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,10 +13,10 @@ builder.Logging.AddOpenTelemetry(options =>
             ResourceBuilder.CreateDefault()
                 .AddService("SampleApiService"))
                 .AddProcessor(new LogEnrichProcessor(new HttpContextAccessor()))
-                .AddProcessor(new LogStackTraceExceptionProcessor())
+                .AddProcessor(new LogExceptionStackTraceProcessor())
         .AddOtlpExporter();
         //To test on local
-        //.AddConsoleExporter(); 
+        //.AddConsoleExporter();
 });
 
 builder.Services.AddControllers();

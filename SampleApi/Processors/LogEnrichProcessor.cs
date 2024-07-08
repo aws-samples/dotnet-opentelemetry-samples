@@ -6,7 +6,7 @@ namespace SampleApi.Processors
     public class LogEnrichProcessor : BaseProcessor<LogRecord>
     {
         private readonly string name;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public LogEnrichProcessor(IHttpContextAccessor? httpContextAccessor, string name = "LogEnrichProcessor")
         {
@@ -16,8 +16,11 @@ namespace SampleApi.Processors
 
         public override void OnEnd(LogRecord record)
         {
-            var username = _httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-            record.Attributes = record!.Attributes!.Append(new KeyValuePair<string, object>("Username", string.IsNullOrEmpty(username) ? "Anonymous" : username)).ToList();
+            var username = _httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "Anonymous";
+            record.Attributes = [.. record.Attributes!, new KeyValuePair<string, object?>("ProcessorName", name)];
+            record.Attributes = [.. record.Attributes!, new KeyValuePair<string, object?>("Username", username)];
+            
+
         }
     }
 }
